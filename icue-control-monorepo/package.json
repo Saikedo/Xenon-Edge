@@ -1,0 +1,11 @@
+{
+  "name": "icue-control-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "start:agent": "npm run start --workspace=packages/agent",
+    "dev:dashboard": "npm run dev --workspace=packages/dashboard"
+  }
+}
