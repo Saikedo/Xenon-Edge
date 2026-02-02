@@ -14,6 +14,6 @@ docker rm -f xeneon-dashboard
 
 # 4. Run the new container
 echo "Starting new container..."
-docker run -d -p 3000:80 --restart always --name xeneon-dashboard xeneon-dashboard
+docker run -d -p 3000:80 -p 3443:443 --restart always --name xeneon-dashboard xeneon-dashboard
 
-echo "Done! Dashboard running on port 3000."
+echo "Done! Dashboard running on http://HOST:3000 and https://HOST:3443"
