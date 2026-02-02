@@ -1,16 +1,21 @@
 # Build Stage
 FROM node:18-alpine as builder
 WORKDIR /app
-# We need to copy the whole monorepo context or at least the dashboard package correctly
-# Assuming build context is root of monorepo
-COPY package.json .
-COPY packages/dashboard ./packages/dashboard
-WORKDIR /app/packages/dashboard
-RUN npm install
 
+# Copy root config
+COPY package.json package-lock.json ./
+
+# Copy packages
+COPY packages/dashboard ./packages/dashboard
+COPY packages/agent/package.json ./packages/agent/package.json
+
+# Install dependencies from ROOT using lockfile (faster, reliable)
+RUN npm ci
+
+# Build dashboard
+WORKDIR /app/packages/dashboard
 ARG VITE_AGENT_URL
 ENV VITE_AGENT_URL=$VITE_AGENT_URL
-
 RUN npm run build
 
 # Production Stage (Nginx)
