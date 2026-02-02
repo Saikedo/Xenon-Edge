@@ -27,7 +27,12 @@ function App() {
     const fetchData = async () => {
         try {
             // Explicit Ping Logging (Debug)
-            console.log(`[${new Date().toLocaleTimeString()}] Sending Ping...`);
+            console.log(`[${new Date().toLocaleTimeString()}] Sending Ping...`, {
+                url: `${AGENT_URL}/api/ping`,
+                protocol: window.location.protocol,
+                env: import.meta.env.VITE_AGENT_URL,
+                agentUrl: AGENT_URL
+            });
             fetch(`${AGENT_URL}/api/ping`)
                 .then(r => r.json())
                 .then(d => console.log(`[${new Date().toLocaleTimeString()}] Ping Response:`, d))
