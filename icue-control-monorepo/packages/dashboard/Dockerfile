@@ -7,6 +7,10 @@ COPY package.json .
 COPY packages/dashboard ./packages/dashboard
 WORKDIR /app/packages/dashboard
 RUN npm install
+
+ARG VITE_AGENT_URL
+ENV VITE_AGENT_URL=$VITE_AGENT_URL
+
 RUN npm run build
 
 # Production Stage (Nginx)
