@@ -203,7 +203,7 @@ function App() {
 
 
             <div style={statusStyle}>
-                STATUS: {status} <span style={{ opacity: 0.5, marginLeft: '10px' }}>v1.1</span>
+                STATUS: {status} <span style={{ opacity: 0.5, marginLeft: '10px' }}>v1.2</span>
             </div>
         </div>
     );
