@@ -171,7 +171,7 @@ function App() {
 
             <div style={{ height: '395px', width: '752px', overflow: 'hidden', borderRadius: '12px' }}>
                 <iframe
-                    src="http://homeassistant.local:8123/ac-units/0"
+                    src="https://bfoziodo4xibb3bu0c5lwz7nfk5h5t0y.ui.nabu.casa/ac-units/0"
                     style={{
                         width: '100%',
                         height: 'calc(100% + 56px)', // Compensate for crop
