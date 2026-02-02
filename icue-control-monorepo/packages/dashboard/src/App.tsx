@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Volume2, VolumeX, Monitor, Plus, X } from 'lucide-react';
 
+const AGENT_URL = ''; // Relative path: Rely on Nginx Proxy (nginx.conf)
+
+/*
 // Smart URL: If we are on HTTPS, assume we are proxying (empty string = relative).
 // If on HTTP, try the Env Var, or default to localhost.
 const AGENT_URL = window.location.protocol === 'https:'
     ? ''
     : (import.meta.env.VITE_AGENT_URL || 'http://localhost:4000');
+*/
 
 interface AudioSession {
     Name: string;
