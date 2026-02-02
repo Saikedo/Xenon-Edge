@@ -6,10 +6,11 @@ interface HomeAssistantFrameProps {
     showToolbar: boolean;
     showLeftPanel: boolean;
     onOpenSettings: () => void;
+    iframeScale: number;
 }
 
 export const HomeAssistantFrame: React.FC<HomeAssistantFrameProps> = ({
-    showToolbar, showLeftPanel, onOpenSettings
+    showToolbar, showLeftPanel, onOpenSettings, iframeScale
 }) => {
     return (
         <div style={{ flex: showLeftPanel ? '0 0 60%' : 1, minWidth: showLeftPanel ? '752px' : '100%', boxSizing: 'border-box', position: 'relative', overflow: 'hidden', transition: 'flex 0.3s ease' }}>
@@ -30,10 +31,12 @@ export const HomeAssistantFrame: React.FC<HomeAssistantFrameProps> = ({
             <iframe
                 src={IFRAME_URL}
                 style={{
-                    width: '100%',
-                    height: showToolbar ? '100%' : 'calc(100% + 56px)',
+                    width: `${100 / iframeScale}%`,
+                    height: showToolbar ? `${100 / iframeScale}%` : `calc(${100 / iframeScale}% + 56px)`,
                     marginTop: showToolbar ? '0px' : '-56px',
                     border: 'none',
+                    transform: `scale(${iframeScale})`,
+                    transformOrigin: 'top left',
                 }}
             />
         </div >

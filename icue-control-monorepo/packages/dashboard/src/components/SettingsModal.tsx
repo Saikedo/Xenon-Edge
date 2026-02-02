@@ -11,10 +11,12 @@ interface SettingsModalProps {
     setShowLeftPanel: (val: boolean) => void;
     showDebug: boolean;
     setShowDebug: (val: boolean) => void;
+    iframeScale: number;
+    setIframeScale: (val: number) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
-    isOpen, onClose, showToolbar, setShowToolbar, showLeftPanel, setShowLeftPanel, showDebug, setShowDebug
+    isOpen, onClose, showToolbar, setShowToolbar, showLeftPanel, setShowLeftPanel, showDebug, setShowDebug, iframeScale, setIframeScale
 }) => {
     if (!isOpen) return null;
 
@@ -54,6 +56,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             checked={showDebug}
                             onChange={(e) => setShowDebug(e.target.checked)}
                             style={{ width: '20px', height: '20px' }}
+                        />
+                    </label>
+
+                    <label style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '15px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', cursor: 'pointer' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span>Iframe Scale</span>
+                            <span style={{ opacity: 0.5 }}>{Math.round(iframeScale * 100)}%</span>
+                        </div>
+                        <input
+                            type="range"
+                            min="0.5"
+                            max="1.5"
+                            step="0.05"
+                            value={iframeScale}
+                            onChange={(e) => setIframeScale(parseFloat(e.target.value))}
+                            style={{ width: '100%', cursor: 'pointer' }}
                         />
                     </label>
                 </div>

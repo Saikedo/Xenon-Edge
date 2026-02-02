@@ -33,6 +33,11 @@ function App() {
         return localStorage.getItem('showDebug') === 'true';
     });
 
+    const [iframeScale, setIframeScale] = useState<number>(() => {
+        const stored = localStorage.getItem('iframeScale');
+        return stored ? parseFloat(stored) : 1.0;
+    });
+
     // Debug Dimensions
     const [windowDim, setWindowDim] = useState({ width: window.innerWidth, height: window.innerHeight });
 
@@ -54,6 +59,10 @@ function App() {
     useEffect(() => {
         localStorage.setItem('showDebug', String(showDebug));
     }, [showDebug]);
+
+    useEffect(() => {
+        localStorage.setItem('iframeScale', String(iframeScale));
+    }, [iframeScale]);
 
     const fetchData = async () => {
         try {
@@ -120,6 +129,8 @@ function App() {
                 setShowLeftPanel={setShowLeftPanel}
                 showDebug={showDebug}
                 setShowDebug={setShowDebug}
+                iframeScale={iframeScale}
+                setIframeScale={setIframeScale}
             />
 
             <AppSelectionModal
@@ -190,6 +201,7 @@ function App() {
                 showToolbar={showToolbar}
                 showLeftPanel={showLeftPanel}
                 onOpenSettings={() => setShowSettings(true)}
+                iframeScale={iframeScale}
             />
 
             {/* Debug Overlay */}
