@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, Monitor, Plus, X, Settings } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Volume2, VolumeX, Monitor, X, Settings } from 'lucide-react';
 
 const AGENT_URL = window.location.protocol === 'https:'
     ? ''
