@@ -60,6 +60,16 @@ A custom monorepo project to control Windows System Audio, HDR, and more from th
     docker run -d -p 3000:80 --restart always --name xeneon-dashboard xeneon-dashboard
     ```
 
+### 🔁 Quick Update (Script)
+
+Instead of running these commands manually every time, you can now just run:
+
+```bash
+./deploy.sh
+```
+
+_(Make sure to run `chmod +x deploy.sh` once first!)_
+
 ---
 
 ## 3. iCUE Setup (On Gaming PC)
