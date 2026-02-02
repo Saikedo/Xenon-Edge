@@ -21,7 +21,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     if (!isOpen) return null;
 
     return (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(3px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(10px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ ...glassStyle, width: '400px', padding: '30px', background: 'rgba(24, 24, 27, 0.7)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                     <h2 style={{ margin: 0 }}>Settings</h2>
