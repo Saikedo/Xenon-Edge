@@ -19,6 +19,7 @@ function App() {
     const [connected, setConnected] = useState<boolean>(true);
     const [pinnedApps, setPinnedApps] = useState<string[]>([]);
     const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [showToolbar, setShowToolbar] = useState<boolean>(false);
 
     // Config
     const IFRAME_URL = "https://bfoziodo4xibb3bu0c5lwz7nfk5h5t0y.ui.nabu.casa/ac-units/0";
@@ -180,15 +181,27 @@ function App() {
             </div>
 
             {/* RIGHT COLUMN: Home Assistant */}
-            <div style={{ flex: '0 0 50%', boxSizing: 'border-box', position: 'relative' }}>
+            <div style={{ flex: '0 0 50%', minWidth: '752px', boxSizing: 'border-box', position: 'relative', overflow: 'hidden' }}>
+                {/* Floating Toggle for Header */}
+                <button
+                    onClick={() => setShowToolbar(!showToolbar)}
+                    style={{
+                        position: 'absolute', top: '10px', right: '10px', zIndex: 10,
+                        padding: '8px', borderRadius: '50%', border: 'none', cursor: 'pointer',
+                        background: 'rgba(0,0,0,0.5)', color: 'white', backdropFilter: 'blur(4px)'
+                    }}
+                    title="Toggle Header"
+                >
+                    {showToolbar ? <X size={16} /> : <Settings size={16} />}
+                </button>
+
                 <iframe
                     src={IFRAME_URL}
                     style={{
                         width: '100%',
-                        height: '100%',
+                        height: showToolbar ? '100%' : 'calc(100% + 56px)',
+                        marginTop: showToolbar ? '0px' : '-56px',
                         border: 'none',
-                        // Optional: If you want to dim the iframe to match theme, requires CSS hacks inside iframe usually
-                        // but we can try overlaying a blend mode if user wants later
                     }}
                 />
             </div>
