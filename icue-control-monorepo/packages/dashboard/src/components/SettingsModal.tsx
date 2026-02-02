@@ -68,7 +68,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             type="range"
                             min="0.5"
                             max="1.5"
-                            step="0.05"
+                            step="0.01"
                             value={iframeScale}
                             onChange={(e) => setIframeScale(parseFloat(e.target.value))}
                             style={{ width: '100%', cursor: 'pointer' }}
