@@ -6,6 +6,7 @@ git pull
 
 # 2. Build the Docker Image
 echo "Building Docker Image..."
+cd icue-control-monorepo
 docker build -f packages/dashboard/Dockerfile --build-arg VITE_AGENT_URL="http://192.168.68.82:4000" -t xeneon-dashboard .
 
 # 3. Stop & Remove old container
