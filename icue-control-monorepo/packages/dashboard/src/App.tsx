@@ -44,6 +44,13 @@ function App() {
                 setPinnedApps(configData.apps);
             }
 
+            // 3. Explicit Ping Logging (Debug)
+            console.log(`[${new Date().toLocaleTimeString()}] Sending Ping...`);
+            fetch(`${AGENT_URL}/api/ping`)
+                .then(r => r.json())
+                .then(d => console.log(`[${new Date().toLocaleTimeString()}] Ping Response:`, d))
+                .catch(e => console.error(`[${new Date().toLocaleTimeString()}] Ping Failed:`, e));
+
         } catch (err: any) {
             console.error("Failed to fetch data", err);
             setConnected(false);
@@ -199,7 +206,7 @@ function App() {
 
 
             <div style={statusStyle}>
-                STATUS: {status} <span style={{ opacity: 0.5, marginLeft: '10px' }}>v1.1</span>
+                STATUS: {status} <span style={{ opacity: 0.5, marginLeft: '10px' }}>v1.3</span>
             </div>
         </div>
     );

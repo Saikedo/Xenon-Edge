@@ -99,7 +99,7 @@ function UserHostname() {
     return process.env.COMPUTERNAME || 'Unknown PC';
 }
 
-app.listen(PORT, () => {
-    console.log(`[Agent] Listening on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`[Agent] Listening on port ${PORT} (0.0.0.0)`);
     console.log(`[Agent] Allow PNA enabled. Home Server can connect.`);
 });
