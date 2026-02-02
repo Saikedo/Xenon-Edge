@@ -51,6 +51,7 @@ function App() {
             if (sessionData.success) {
                 setSessions(sessionData.sessions);
                 setConnected(true);
+                setStatus('Ready');
             }
 
             if (configData.success) {
