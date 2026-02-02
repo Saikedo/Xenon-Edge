@@ -52,12 +52,12 @@ A custom monorepo project to control Windows System Audio, HDR, and more from th
     _Replace `192.168.1.XX` with your Gaming PC's IP address._
 
     ```bash
-    docker build -f packages/dashboard/Dockerfile --build-arg VITE_AGENT_URL="http://192.168.1.XX:4000" -t xeneon-dashboard .
+    docker build -f packages/dashboard/Dockerfile --build-arg VITE_AGENT_URL="http://192.168.68.82:4000" -t xeneon-dashboard .
     ```
 
 3.  Run the Container:
     ```bash
-    docker run -d -p 3000:80 --restart always xeneon-dashboard
+    docker run -d -p 3000:80 --restart always --name xeneon-dashboard xeneon-dashboard
     ```
 
 ---

@@ -17,6 +17,7 @@ function App() {
     const [connected, setConnected] = useState<boolean>(true);
     const [pinnedApps, setPinnedApps] = useState<string[]>([]);
     const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [showToolbar, setShowToolbar] = useState<boolean>(false);
 
     // Fetch both live sessions and pinned config
     const fetchData = async () => {
@@ -169,18 +170,27 @@ function App() {
             )}
 
 
-            <div style={{ height: '395px', width: '752px', overflow: 'hidden', borderRadius: '12px' }}>
-                <iframe
-                    src="https://bfoziodo4xibb3bu0c5lwz7nfk5h5t0y.ui.nabu.casa/ac-units/0"
-                    style={{
-                        width: '100%',
-                        height: 'calc(100% + 56px)', // Compensate for crop
-                        marginTop: '-56px',          // Crop top toolbar (~56px)
-                        border: 'none',
-                        background: '#1e293b'
-                    }}
-                    title="Home Assistant AC Control"
-                />
+            <div style={{ width: '100%', maxWidth: '800px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3>Home Control</h3>
+                    <label style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', opacity: 0.7 }}>
+                        <input type="checkbox" checked={showToolbar} onChange={e => setShowToolbar(e.target.checked)} />
+                        Show Header
+                    </label>
+                </div>
+                <div style={{ height: '395px', width: '752px', overflow: 'hidden', borderRadius: '12px' }}>
+                    <iframe
+                        src="https://bfoziodo4xibb3bu0c5lwz7nfk5h5t0y.ui.nabu.casa/ac-units/0"
+                        style={{
+                            width: '100%',
+                            height: showToolbar ? '100%' : 'calc(100% + 56px)', // Compensate for crop
+                            marginTop: showToolbar ? '0px' : '-56px',          // Crop top toolbar (~56px)
+                            border: 'none',
+                            background: '#1e293b'
+                        }}
+                        title="Home Assistant AC Control"
+                    />
+                </div>
             </div>
 
 
