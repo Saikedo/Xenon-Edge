@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, Monitor, RefreshCcw, Plus, X } from 'lucide-react';
+import { Volume2, VolumeX, Monitor, Plus, X } from 'lucide-react';
 
 const AGENT_URL = import.meta.env.VITE_AGENT_URL || 'http://localhost:4000';
 
