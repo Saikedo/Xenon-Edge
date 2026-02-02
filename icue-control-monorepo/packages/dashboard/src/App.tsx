@@ -26,6 +26,14 @@ function App() {
     // Fetch both live sessions and pinned config
     const fetchData = async () => {
         try {
+            // Explicit Ping Logging (Debug)
+            console.log(`[${new Date().toLocaleTimeString()}] Sending Ping...`);
+            fetch(`${AGENT_URL}/api/ping`)
+                .then(r => r.json())
+                .then(d => console.log(`[${new Date().toLocaleTimeString()}] Ping Response:`, d))
+                .catch(e => console.error(`[${new Date().toLocaleTimeString()}] Ping Failed:`, e));
+
+
             // 1. Get Live Sessions
             const sessionRes = await fetch(`${AGENT_URL}/api/audio/sessions`);
             if (!sessionRes.ok) throw new Error("Unreachable");
@@ -43,14 +51,6 @@ function App() {
             if (configData.success) {
                 setPinnedApps(configData.apps);
             }
-
-            // 3. Explicit Ping Logging (Debug)
-            console.log(`[${new Date().toLocaleTimeString()}] Sending Ping...`);
-            fetch(`${AGENT_URL}/api/ping`)
-                .then(r => r.json())
-                .then(d => console.log(`[${new Date().toLocaleTimeString()}] Ping Response:`, d))
-                .catch(e => console.error(`[${new Date().toLocaleTimeString()}] Ping Failed:`, e));
-
         } catch (err: any) {
             console.error("Failed to fetch data", err);
             setConnected(false);
