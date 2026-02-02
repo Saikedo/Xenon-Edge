@@ -1,17 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Volume2, VolumeX, Monitor, X, Settings } from 'lucide-react';
-
-const AGENT_URL = window.location.protocol === 'https:'
-    ? ''
-    : (import.meta.env.VITE_AGENT_URL || 'http://localhost:4000');
-
-interface AudioSession {
-    Name: string;
-    "Device Name": string;
-    "Volume Percent": string;
-    Muted: string;
-    ProcessID: string;
-}
+import { Monitor, Settings } from 'lucide-react';
+import { AudioSession } from './types';
+import { AGENT_URL } from './config';
+import { glassStyle } from './styles';
+import { sendCommand } from './api';
+import { AudioMixer } from './components/AudioMixer';
+import { SettingsModal } from './components/SettingsModal';
+import { AppSelectionModal } from './components/AppSelectionModal';
+import { HomeAssistantFrame } from './components/HomeAssistantFrame';
 
 function App() {
     const [status, setStatus] = useState<string>('Initializing...');
@@ -19,64 +15,31 @@ function App() {
     const [connected, setConnected] = useState<boolean>(true);
     const [pinnedApps, setPinnedApps] = useState<string[]>([]);
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [showToolbar, setShowToolbar] = useState<boolean>(false);
 
-    // Volume Swipe State
-    const [dragging, setDragging] = useState<{ name: string, startX: number, startVol: number, currentVol: number } | null>(null);
+    // Settings State
+    const [showSettings, setShowSettings] = useState<boolean>(false);
 
-    const parseVolume = (volStr: string): number => {
-        return parseFloat(volStr.replace('%', '')) || 0;
-    };
+    // Persisted Settings
+    const [showToolbar, setShowToolbar] = useState<boolean>(() => {
+        return localStorage.getItem('showToolbar') === 'true';
+    });
 
-    const handleTouchStart = (e: React.TouchEvent, s: AudioSession) => {
-        const touch = e.touches[0];
-        setDragging({
-            name: s.Name,
-            startX: touch.clientX,
-            startVol: parseVolume(s["Volume Percent"]),
-            currentVol: parseVolume(s["Volume Percent"])
-        });
-    };
+    const [showLeftPanel, setShowLeftPanel] = useState<boolean>(() => {
+        const stored = localStorage.getItem('showLeftPanel');
+        return stored !== 'false'; // Default to true
+    });
 
-    const handleTouchMove = (e: React.TouchEvent) => {
-        if (!dragging) return;
-        const touch = e.touches[0];
-        const deltaX = touch.clientX - dragging.startX;
+    // Persistence Effects
+    useEffect(() => {
+        localStorage.setItem('showToolbar', String(showToolbar));
+    }, [showToolbar]);
 
-        // Sensitivity: 1px = 0.5% volume
-        const deltaVol = deltaX * 0.5;
-
-        let newVol = Math.max(0, Math.min(100, dragging.startVol + deltaVol));
-
-        setDragging(prev => prev ? { ...prev, currentVol: newVol } : null);
-    };
-
-    const handleTouchEnd = async () => {
-        if (!dragging) return;
-
-        // Commit Volume
-        await fetch(`${AGENT_URL}/api/audio/volume`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ appName: dragging.name, level: Math.round(dragging.currentVol) }),
-        });
-
-        // Update local session immediately
-        setSessions(prev => prev.map(s =>
-            s.Name === dragging.name
-                ? { ...s, "Volume Percent": `${Math.round(dragging.currentVol).toFixed(1)}%` }
-                : s
-        ));
-
-        setDragging(null);
-    };
-
-    // Config
-    const IFRAME_URL = "https://bfoziodo4xibb3bu0c5lwz7nfk5h5t0y.ui.nabu.casa/ac-units/0";
+    useEffect(() => {
+        localStorage.setItem('showLeftPanel', String(showLeftPanel));
+    }, [showLeftPanel]);
 
     const fetchData = async () => {
         try {
-            // Ping for debug (keep visible in console)
             fetch(`${AGENT_URL}/api/ping`)
                 .catch(e => console.error("Ping Fail", e));
 
@@ -107,43 +70,17 @@ function App() {
 
     useEffect(() => {
         fetchData();
-        const interval = setInterval(fetchData, 5000); // Faster polling for UI responsiveness
+        const interval = setInterval(fetchData, 5000);
         return () => clearInterval(interval);
     }, []);
 
-    const savePinnedApps = async (newPinned: string[]) => {
-        try {
-            await fetch(`${AGENT_URL}/api/config/pinned-apps`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ apps: newPinned }),
-            });
-            setPinnedApps(newPinned);
-        } catch (err) { console.error(err); }
-    };
-
-    const sendCommand = async (endpoint: string, body: any) => {
-        try {
-            await fetch(`${AGENT_URL}${endpoint}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body),
-            });
-            fetchData();
-        } catch (err) { console.error(err); }
-    };
-
-    const displaySessions = sessions.filter(s => pinnedApps.includes(s.Name));
-
-    // --- STYLES ---
-    const glassStyle = {
-        background: 'rgba(255, 255, 255, 0.03)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.05)',
-        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.5)',
-        borderRadius: '24px',
-        color: '#fff'
+    // Optimistic update handler for AudioMixer
+    const handleVolumeOptimisticUpdate = (appName: string, vol: number) => {
+        setSessions(prev => prev.map(s =>
+            s.Name === appName
+                ? { ...s, "Volume Percent": `${vol.toFixed(1)}%` }
+                : s
+        ));
     };
 
     return (
@@ -154,169 +91,87 @@ function App() {
             background: 'radial-gradient(circle at top left, #1e1e24, #000)',
             overflow: 'hidden',
             fontFamily: '"Inter", sans-serif',
-            touchAction: 'none' // Prevent browser gestures
+            touchAction: 'none'
         }}>
 
+            <SettingsModal
+                isOpen={showSettings}
+                onClose={() => setShowSettings(false)}
+                showToolbar={showToolbar}
+                setShowToolbar={setShowToolbar}
+                showLeftPanel={showLeftPanel}
+                setShowLeftPanel={setShowLeftPanel}
+            />
+
+            <AppSelectionModal
+                isOpen={isEditing}
+                onClose={() => setIsEditing(false)}
+                sessions={sessions}
+                pinnedApps={pinnedApps}
+                setPinnedApps={setPinnedApps}
+            />
+
             {/* LEFT COLUMN: Controls */}
-            <div style={{
-                flex: 1,
-                padding: '40px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '30px',
-                boxSizing: 'border-box'
-            }}>
-                {/* Header Section */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                        {/* Title removed */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '5px', opacity: 0.5 }}>
-                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: connected ? '#4ade80' : '#ef4444' }} />
-                            <span style={{ fontSize: '0.9rem' }}>{status} v1.3</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Quick Actions Grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                    <button
-                        onClick={() => sendCommand('/api/system/hdr', { enable: true })}
-                        style={{ ...glassStyle, padding: '24px', fontSize: '1.2rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px', transition: 'all 0.2s', textAlign: 'left' }}
-                    >
-                        <Monitor size={32} strokeWidth={1.5} />
+            {showLeftPanel && (
+                <div style={{
+                    flex: 1,
+                    padding: '40px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '30px',
+                    boxSizing: 'border-box'
+                }}>
+                    {/* Header Section */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
-                            <div style={{ fontWeight: 600 }}>Toggle HDR</div>
-                            <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>System Display</div>
-                        </div>
-                    </button>
-
-                    <button
-                        onClick={() => setIsEditing(true)}
-                        style={{ ...glassStyle, padding: '24px', fontSize: '1.2rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px', transition: 'all 0.2s', textAlign: 'left' }}
-                    >
-                        <Settings size={32} strokeWidth={1.5} />
-                        <div>
-                            <div style={{ fontWeight: 600 }}>Manage Apps</div>
-                            <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>Pin Audio Sources</div>
-                        </div>
-                    </button>
-                </div>
-
-                {/* Audio Mixer */}
-                <div
-                    style={{ ...glassStyle, flex: 1, padding: '30px', display: 'flex', flexDirection: 'column', gap: '20px', overflowY: 'auto' }}
-                    onTouchMove={handleTouchMove}
-                    onTouchEnd={handleTouchEnd}
-                >
-                    <h2 style={{ margin: 0, fontSize: '1.5rem', opacity: 0.8 }}>Audio Mixer</h2>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                        {displaySessions.length === 0 && <div style={{ opacity: 0.4, padding: '20px', textAlign: 'center' }}>No apps pinned.</div>}
-                        {displaySessions.map((s, i) => {
-                            const isDragging = dragging?.name === s.Name;
-                            const volumeVal = isDragging ? dragging.currentVol : parseVolume(s["Volume Percent"]);
-
-                            return (
-                                <div
-                                    key={i}
-                                    onTouchStart={(e) => handleTouchStart(e, s)}
-                                    style={{
-                                        position: 'relative',
-                                        display: 'flex', alignItems: 'center', gap: '20px', padding: '15px',
-                                        background: 'rgba(255,255,255,0.03)', borderRadius: '16px',
-                                        overflow: 'hidden',
-                                        userSelect: 'none'
-                                    }}
-                                >
-                                    {/* Volume Bar Background */}
-                                    <div style={{
-                                        position: 'absolute', top: 0, bottom: 0, left: 0,
-                                        width: `${volumeVal}%`,
-                                        background: 'rgba(255,255,255,0.08)',
-                                        zIndex: 0,
-                                        transition: isDragging ? 'none' : 'width 0.3s ease'
-                                    }} />
-
-                                    <div style={{ flex: 1, overflow: 'hidden', zIndex: 1 }}>
-                                        <div style={{ fontSize: '1.1rem', fontWeight: 500 }}>{s.Name}</div>
-                                        <div style={{ fontSize: '0.8rem', opacity: 0.5 }}>{Math.round(volumeVal)}% Volume</div>
-                                    </div>
-
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); sendCommand('/api/audio/mute', { appName: s.Name, mute: s.Muted !== 'Yes' }); }}
-                                        onTouchStart={(e) => e.stopPropagation()}
-                                        style={{
-                                            zIndex: 2,
-                                            width: '50px', height: '50px', borderRadius: '50%', border: 'none', cursor: 'pointer',
-                                            background: s.Muted === 'Yes' ? '#ef4444' : 'rgba(255,255,255,0.1)',
-                                            color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                        }}
-                                    >
-                                        {s.Muted === 'Yes' ? <VolumeX /> : <Volume2 />}
-                                    </button>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-            </div>
-
-            {/* RIGHT COLUMN: Home Assistant */}
-            <div style={{ flex: '0 0 60%', minWidth: '752px', boxSizing: 'border-box', position: 'relative', overflow: 'hidden' }}>
-                {/* Floating Toggle for Header */}
-                <button
-                    onClick={() => setShowToolbar(!showToolbar)}
-                    style={{
-                        position: 'absolute', top: '10px', right: '10px', zIndex: 10,
-                        padding: '8px', borderRadius: '50%', border: 'none', cursor: 'pointer',
-                        background: 'rgba(0,0,0,0.5)', color: 'white', backdropFilter: 'blur(4px)'
-                    }}
-                    title="Toggle Header"
-                >
-                    {showToolbar ? <X size={16} /> : <Settings size={16} />}
-                </button>
-
-                <iframe
-                    src={IFRAME_URL}
-                    style={{
-                        width: '100%',
-                        height: showToolbar ? '100%' : 'calc(100% + 56px)',
-                        marginTop: showToolbar ? '0px' : '-56px',
-                        border: 'none',
-                    }}
-                />
-            </div>
-
-            {/* Modal */}
-            {isEditing && (
-                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ ...glassStyle, width: '500px', padding: '30px', background: '#18181b' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                            <h2 style={{ margin: 0 }}>Select Apps</h2>
-                            <button onClick={() => setIsEditing(false)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}><X /></button>
-                        </div>
-                        <div style={{ maxHeight: '400px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                            {sessions.map((s, i) => (
-                                <label key={i} style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '15px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', cursor: 'pointer' }}>
-                                    <input
-                                        type="checkbox"
-                                        checked={pinnedApps.includes(s.Name)}
-                                        onChange={(e) => {
-                                            const newSet = e.target.checked ? [...pinnedApps, s.Name] : pinnedApps.filter(p => p !== s.Name);
-                                            savePinnedApps(newSet);
-                                        }}
-                                        style={{ width: '20px', height: '20px' }}
-                                    />
-                                    <span style={{ fontSize: '1.1rem' }}>{s.Name}</span>
-                                </label>
-                            ))}
-                        </div>
-                        <div style={{ marginTop: '20px', textAlign: 'right' }}>
-                            <button onClick={() => setIsEditing(false)} style={{ padding: '10px 30px', borderRadius: '12px', border: 'none', background: '#3b82f6', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>Done</button>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '5px', opacity: 0.5 }}>
+                                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: connected ? '#4ade80' : '#ef4444' }} />
+                                <span style={{ fontSize: '0.9rem' }}>{status} v1.4</span>
+                            </div>
                         </div>
                     </div>
+
+                    {/* Quick Actions Grid */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                        <button
+                            onClick={() => sendCommand('/api/system/hdr', { enable: true }).then(fetchData)}
+                            style={{ ...glassStyle, padding: '24px', fontSize: '1.2rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px', transition: 'all 0.2s', textAlign: 'left' }}
+                        >
+                            <Monitor size={32} strokeWidth={1.5} />
+                            <div>
+                                <div style={{ fontWeight: 600 }}>Toggle HDR</div>
+                                <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>System Display</div>
+                            </div>
+                        </button>
+
+                        <button
+                            onClick={() => setIsEditing(true)}
+                            style={{ ...glassStyle, padding: '24px', fontSize: '1.2rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px', transition: 'all 0.2s', textAlign: 'left' }}
+                        >
+                            <Settings size={32} strokeWidth={1.5} />
+                            <div>
+                                <div style={{ fontWeight: 600 }}>Manage Apps</div>
+                                <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>Pin Audio Sources</div>
+                            </div>
+                        </button>
+                    </div>
+
+                    {/* Audio Mixer */}
+                    <AudioMixer
+                        sessions={sessions}
+                        pinnedApps={pinnedApps}
+                        onRefresh={fetchData}
+                        onVolumeOptimisticUpdate={handleVolumeOptimisticUpdate}
+                    />
                 </div>
             )}
+
+            {/* RIGHT COLUMN: Home Assistant */}
+            <HomeAssistantFrame
+                showToolbar={showToolbar}
+                showLeftPanel={showLeftPanel}
+                onOpenSettings={() => setShowSettings(true)}
+            />
 
         </div>
     );
