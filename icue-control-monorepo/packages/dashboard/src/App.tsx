@@ -108,7 +108,7 @@ function App() {
 
             {/* LEFT COLUMN: Controls */}
             <div style={{
-                flex: '0 0 50%',
+                flex: 1,
                 padding: '40px',
                 display: 'flex',
                 flexDirection: 'column',
@@ -118,7 +118,7 @@ function App() {
                 {/* Header Section */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '2.5rem', fontWeight: 600, letterSpacing: '-1px' }}>Xeneon</h1>
+                        {/* Title removed */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '5px', opacity: 0.5 }}>
                             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: connected ? '#4ade80' : '#ef4444' }} />
                             <span style={{ fontSize: '0.9rem' }}>{status} v1.3</span>
@@ -181,7 +181,7 @@ function App() {
             </div>
 
             {/* RIGHT COLUMN: Home Assistant */}
-            <div style={{ flex: '0 0 50%', minWidth: '752px', boxSizing: 'border-box', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ flex: '0 0 60%', minWidth: '752px', boxSizing: 'border-box', position: 'relative', overflow: 'hidden' }}>
                 {/* Floating Toggle for Header */}
                 <button
                     onClick={() => setShowToolbar(!showToolbar)}
