@@ -9,10 +9,12 @@ interface SettingsModalProps {
     setShowToolbar: (val: boolean) => void;
     showLeftPanel: boolean;
     setShowLeftPanel: (val: boolean) => void;
+    showDebug: boolean;
+    setShowDebug: (val: boolean) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
-    isOpen, onClose, showToolbar, setShowToolbar, showLeftPanel, setShowLeftPanel
+    isOpen, onClose, showToolbar, setShowToolbar, showLeftPanel, setShowLeftPanel, showDebug, setShowDebug
 }) => {
     if (!isOpen) return null;
 
@@ -41,6 +43,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             type="checkbox"
                             checked={showLeftPanel}
                             onChange={(e) => setShowLeftPanel(e.target.checked)}
+                            style={{ width: '20px', height: '20px' }}
+                        />
+                    </label>
+
+                    <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', cursor: 'pointer' }}>
+                        <span>Show Debug Info</span>
+                        <input
+                            type="checkbox"
+                            checked={showDebug}
+                            onChange={(e) => setShowDebug(e.target.checked)}
                             style={{ width: '20px', height: '20px' }}
                         />
                     </label>

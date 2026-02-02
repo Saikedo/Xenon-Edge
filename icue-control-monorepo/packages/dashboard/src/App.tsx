@@ -29,6 +29,19 @@ function App() {
         return stored !== 'false'; // Default to true
     });
 
+    const [showDebug, setShowDebug] = useState<boolean>(() => {
+        return localStorage.getItem('showDebug') === 'true';
+    });
+
+    // Debug Dimensions
+    const [windowDim, setWindowDim] = useState({ width: window.innerWidth, height: window.innerHeight });
+
+    useEffect(() => {
+        const handleResize = () => setWindowDim({ width: window.innerWidth, height: window.innerHeight });
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     // Persistence Effects
     useEffect(() => {
         localStorage.setItem('showToolbar', String(showToolbar));
@@ -37,6 +50,10 @@ function App() {
     useEffect(() => {
         localStorage.setItem('showLeftPanel', String(showLeftPanel));
     }, [showLeftPanel]);
+
+    useEffect(() => {
+        localStorage.setItem('showDebug', String(showDebug));
+    }, [showDebug]);
 
     const fetchData = async () => {
         try {
@@ -101,6 +118,8 @@ function App() {
                 setShowToolbar={setShowToolbar}
                 showLeftPanel={showLeftPanel}
                 setShowLeftPanel={setShowLeftPanel}
+                showDebug={showDebug}
+                setShowDebug={setShowDebug}
             />
 
             <AppSelectionModal
@@ -172,6 +191,19 @@ function App() {
                 showLeftPanel={showLeftPanel}
                 onOpenSettings={() => setShowSettings(true)}
             />
+
+            {/* Debug Overlay */}
+            {showDebug && (
+                <div style={{
+                    position: 'fixed', bottom: 0, left: 0, right: 0,
+                    background: 'rgba(0, 0, 0, 0.8)', color: '#0f0',
+                    fontFamily: 'monospace', fontSize: '12px',
+                    padding: '5px 10px', zIndex: 9999, pointerEvents: 'none',
+                    textAlign: 'center', borderTop: '1px solid #333'
+                }}>
+                    DEBUG: Width: {windowDim.width}px | Height: {windowDim.height}px
+                </div>
+            )}
 
         </div>
     );
