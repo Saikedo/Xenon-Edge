@@ -27,7 +27,7 @@ export const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onTabChange }) => {
                             background: isActive ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
                             border: 'none',
                             borderRadius: '8px',
-                            padding: '8px 24px',
+                            padding: '6px 20px',
                             color: isActive ? '#fff' : '#aaa',
                             fontWeight: 600,
                             cursor: 'pointer',

@@ -174,7 +174,7 @@ function App() {
 
             {/* Top Navigation Bar */}
             <div style={{
-                height: '60px',
+                height: '48px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center', // Center tabs
