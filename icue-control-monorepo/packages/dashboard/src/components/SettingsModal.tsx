@@ -80,7 +80,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     </label>
                 </div>
 
-                <div style={{ marginTop: '20px', textAlign: 'right' }}>
+                <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
+                    <button
+                        onClick={() => window.location.reload()}
+                        style={{ padding: '10px 20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,50,50,0.1)', color: '#ff6666', fontWeight: 600, cursor: 'pointer' }}
+                    >
+                        Hard Refresh
+                    </button>
                     <button onClick={onClose} style={{ padding: '10px 30px', borderRadius: '12px', border: 'none', background: '#3b82f6', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>Done</button>
                 </div>
             </div>
