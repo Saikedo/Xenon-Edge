@@ -6,7 +6,7 @@ export default defineConfig({
     server: {
         proxy: {
             '/beszel': {
-                target: 'https://beszel.saik22.com',
+                target: 'http://192.168.68.86:8090',
                 changeOrigin: true,
                 secure: false,
                 rewrite: (path) => path.replace(/^\/beszel/, ''),
@@ -21,7 +21,7 @@ export default defineConfig({
             },
             // Proxy Beszel Assets
             '/assets': {
-                target: 'https://beszel.saik22.com',
+                target: 'http://192.168.68.86:8090',
                 changeOrigin: true,
                 secure: false,
                 configure: (proxy, _options) => {
@@ -32,7 +32,7 @@ export default defineConfig({
                 }
             },
             '/static': {
-                target: 'https://beszel.saik22.com',
+                target: 'http://192.168.68.86:8090',
                 changeOrigin: true,
                 secure: false,
                 configure: (proxy, _options) => {
@@ -44,7 +44,7 @@ export default defineConfig({
             },
             // Proxy Beszel API (PocketBase)
             '/api/collections': {
-                target: 'https://beszel.saik22.com',
+                target: 'http://192.168.68.86:8090',
                 changeOrigin: true,
                 secure: false,
                 configure: (proxy, _options) => {
@@ -56,7 +56,7 @@ export default defineConfig({
             },
             // Proxy Beszel Auth
             '/api/admins': {
-                target: 'https://beszel.saik22.com',
+                target: 'http://192.168.68.86:8090',
                 changeOrigin: true,
                 secure: false,
                 configure: (proxy, _options) => {
@@ -67,7 +67,7 @@ export default defineConfig({
                 }
             },
             '/api/health': {
-                target: 'https://beszel.saik22.com',
+                target: 'http://192.168.68.86:8090',
                 changeOrigin: true,
                 secure: false,
                 configure: (proxy, _options) => {
