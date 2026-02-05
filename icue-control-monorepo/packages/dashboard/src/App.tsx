@@ -24,7 +24,7 @@ interface AppSettings {
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
-    home: { showToolbar: true, showLeftPanel: true, iframeScale: 1.0, showDebug: false },
+    home: { showToolbar: true, showLeftPanel: true, iframeScale: 1.0, showDebug: true },
     beszel: { iframeScale: 1.0, showDebug: false }
 };
 
@@ -85,13 +85,33 @@ function App() {
         }));
     };
 
-    // Debug Dimensions
+    // Debug Dimensions & Logger
     const [windowDim, setWindowDim] = useState({ width: window.innerWidth, height: window.innerHeight });
+    const [logs, setLogs] = useState<string[]>([]);
 
     useEffect(() => {
         const handleResize = () => setWindowDim({ width: window.innerWidth, height: window.innerHeight });
         window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+
+        // Capture console logs
+        const originalLog = console.log;
+        const originalError = console.error;
+
+        console.log = (...args) => {
+            setLogs(prev => [...prev.slice(-10), `LOG: ${args.join(' ')}`]);
+            originalLog(...args);
+        };
+
+        console.error = (...args) => {
+            setLogs(prev => [...prev.slice(-10), `ERR: ${args.join(' ')}`]);
+            originalError(...args);
+        };
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            console.log = originalLog;
+            console.error = originalError;
+        };
     }, []);
 
     // Persistence
@@ -274,15 +294,25 @@ function App() {
             </div>
 
             {/* Debug Overlay */}
-            {currentSettings.showDebug && (
+            {/* Debug Overlay */}
+            {/* FORCE DEBUG VISIBILITY FOR NOW: always show if logs exist or showDebug is true */}
+            {(currentSettings.showDebug || true) && (
                 <div style={{
                     position: 'fixed', bottom: 0, left: 0, right: 0,
-                    background: 'rgba(0, 0, 0, 0.8)', color: '#0f0',
-                    fontFamily: 'monospace', fontSize: '12px',
+                    background: 'rgba(0, 0, 0, 0.9)', color: '#0f0',
+                    fontFamily: 'monospace', fontSize: '11px',
                     padding: '5px 10px', zIndex: 9999, pointerEvents: 'none',
-                    textAlign: 'center', borderTop: '1px solid #333'
+                    textAlign: 'left', borderTop: '1px solid #333',
+                    maxHeight: '200px', overflowY: 'auto'
                 }}>
-                    DEBUG: Width: {windowDim.width}px | Height: {windowDim.height}px
+                    <div style={{ borderBottom: '1px solid #333', marginBottom: '4px' }}>
+                        DIM: {windowDim.width}x{windowDim.height} | {status}
+                    </div>
+                    {logs.map((log, i) => (
+                        <div key={i} style={{ color: log.startsWith('ERR') ? '#ef4444' : '#0f0' }}>
+                            {log}
+                        </div>
+                    ))}
                 </div>
             )}
 
