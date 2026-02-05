@@ -36,7 +36,12 @@ function App() {
     const [isEditing, setIsEditing] = useState<boolean>(false);
 
     // Tab State
-    const [activeTab, setActiveTab] = useState<string>('home');
+    const [activeTab, setActiveTab] = useState<string>(() => localStorage.getItem('activeTab') || 'home');
+
+    // Persist activeTab
+    useEffect(() => {
+        localStorage.setItem('activeTab', activeTab);
+    }, [activeTab]);
 
     // Settings State
     const [showSettings, setShowSettings] = useState<boolean>(false);
