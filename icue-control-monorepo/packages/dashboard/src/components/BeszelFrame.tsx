@@ -31,8 +31,8 @@ export const BeszelFrame: React.FC<BeszelFrameProps> = ({ iframeScale, onOpenSet
             </button>
 
             <iframe
-                // Use dedicated port 8443 (HTTPS) on the same host to avoid Mixed Content
-                src={`https://${window.location.hostname}:8443/`}
+                // Use dedicated port 9443 (HTTPS) on the same host to avoid Mixed Content
+                src={`https://${window.location.hostname}:9443/`}
                 style={{
                     width: `${100 / iframeScale}%`,
                     height: `${100 / iframeScale}%`,
