@@ -294,9 +294,7 @@ function App() {
             </div>
 
             {/* Debug Overlay */}
-            {/* Debug Overlay */}
-            {/* FORCE DEBUG VISIBILITY FOR NOW: always show if logs exist or showDebug is true */}
-            {(currentSettings.showDebug || true) && (
+            {currentSettings.showDebug && (
                 <div style={{
                     position: 'fixed', bottom: 0, left: 0, right: 0,
                     background: 'rgba(0, 0, 0, 0.9)', color: '#0f0',
