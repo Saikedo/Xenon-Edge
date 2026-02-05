@@ -31,7 +31,7 @@ export const BeszelFrame: React.FC<BeszelFrameProps> = ({ iframeScale, onOpenSet
             </button>
 
             <iframe
-                src="http://192.168.68.86:8090"
+                src="/beszel/"
                 style={{
                     width: `${100 / iframeScale}%`,
                     height: `${100 / iframeScale}%`,
