@@ -10,7 +10,7 @@ import { AppSelectionModal } from './components/AppSelectionModal';
 import { HomeAssistantFrame } from './components/HomeAssistantFrame';
 import { Tabs } from './components/Tabs';
 import { BeszelFrame } from './components/BeszelFrame';
-
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 interface TabSettings {
     showToolbar?: boolean;
@@ -25,7 +25,7 @@ interface AppSettings {
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
-    home: { showToolbar: true, showLeftPanel: true, iframeScale: 1.0, showDebug: true },
+    home: { showToolbar: true, showLeftPanel: true, iframeScale: 1.0, showDebug: false },
     beszel: { iframeScale: 1.0, showDebug: false }
 };
 
@@ -265,39 +265,39 @@ function App() {
                                 </div>
 
                                 {/* Audio Mixer */}
-
-                                <AudioMixer
-                                    sessions={sessions}
-                                    pinnedApps={pinnedApps}
-                                    onRefresh={fetchData}
-                                    onVolumeOptimisticUpdate={handleVolumeOptimisticUpdate}
-                                />
-
+                                <ErrorBoundary componentName="Audio Mixer">
+                                    <AudioMixer
+                                        sessions={sessions}
+                                        pinnedApps={pinnedApps}
+                                        onRefresh={fetchData}
+                                        onVolumeOptimisticUpdate={handleVolumeOptimisticUpdate}
+                                    />
+                                </ErrorBoundary>
                             </div>
                         )}
 
                         {/* RIGHT COLUMN: Home Assistant */}
                         <div style={{ flex: 1, overflow: 'hidden', padding: '12px' }}>
-
-                            <HomeAssistantFrame
-                                showToolbar={!!currentSettings.showToolbar}
-                                showLeftPanel={!!currentSettings.showLeftPanel}
-                                onOpenSettings={() => setShowSettings(true)}
-                                iframeScale={currentSettings.iframeScale || 1.0}
-                            />
-
+                            <ErrorBoundary componentName="Home Assistant">
+                                <HomeAssistantFrame
+                                    showToolbar={!!currentSettings.showToolbar}
+                                    showLeftPanel={!!currentSettings.showLeftPanel}
+                                    onOpenSettings={() => setShowSettings(true)}
+                                    iframeScale={currentSettings.iframeScale || 1.0}
+                                />
+                            </ErrorBoundary>
                         </div>
                     </>
                 )}
 
                 {activeTab === 'beszel' && (
-
-                    <BeszelFrame
-                        iframeScale={currentSettings.iframeScale || 1.0}
-                        showDebug={!!currentSettings.showDebug}
-                        onOpenSettings={() => setShowSettings(true)}
-                    />
-
+                    <ErrorBoundary componentName="Beszel">
+                        <BeszelFrame
+                            iframeScale={currentSettings.iframeScale || 1.0}
+                            showDebug={!!currentSettings.showDebug}
+                            onOpenSettings={() => setShowSettings(true)}
+                        />
+                    </ErrorBoundary>
                 )}
 
             </div>
