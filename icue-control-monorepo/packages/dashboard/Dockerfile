@@ -24,5 +24,5 @@ COPY --from=builder /app/packages/dashboard/dist /usr/share/nginx/html
 # Copy custom Nginx config and Certs
 COPY packages/dashboard/nginx.conf /etc/nginx/conf.d/default.conf
 COPY packages/dashboard/certs /etc/nginx/certs
-EXPOSE 80 443
+EXPOSE 80 443 8443
 CMD ["nginx", "-g", "daemon off;"]
