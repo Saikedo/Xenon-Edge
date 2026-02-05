@@ -11,6 +11,7 @@ interface SettingsModalProps {
         showLeftPanel?: boolean;
         showDebug?: boolean;
         iframeScale?: number;
+        showHeader?: boolean;
     };
     updateSetting: (key: any, value: any) => void;
 }
@@ -51,6 +52,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                 />
                             </label>
                         </>
+                    )}
+
+                    {activeTab === 'beszel' && (
+                        <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', cursor: 'pointer' }}>
+                            <span>Show Header</span>
+                            <input
+                                type="checkbox"
+                                checked={currentSettings.showHeader ?? true}
+                                onChange={(e) => updateSetting('showHeader', e.target.checked)}
+                                style={{ width: '20px', height: '20px' }}
+                            />
+                        </label>
                     )}
 
                     <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', cursor: 'pointer' }}>

@@ -16,6 +16,7 @@ interface TabSettings {
     showLeftPanel?: boolean;
     showDebug?: boolean;
     iframeScale?: number;
+    showHeader?: boolean;
 }
 
 interface AppSettings {
@@ -25,7 +26,7 @@ interface AppSettings {
 
 const DEFAULT_SETTINGS: AppSettings = {
     home: { showToolbar: true, showLeftPanel: true, iframeScale: 1.0, showDebug: false },
-    beszel: { iframeScale: 1.0, showDebug: false }
+    beszel: { iframeScale: 1.0, showDebug: false, showHeader: true }
 };
 
 function App() {
@@ -36,39 +37,25 @@ function App() {
     const [isEditing, setIsEditing] = useState<boolean>(false);
 
     // Tab State
-    const [activeTab, setActiveTab] = useState<string>('home');
+    const [activeTab, setActiveTab] = useState<string>(() => localStorage.getItem('activeTab') || 'home');
+
+    // Persist activeTab
+    useEffect(() => {
+        localStorage.setItem('activeTab', activeTab);
+    }, [activeTab]);
 
     // Settings State
     const [showSettings, setShowSettings] = useState<boolean>(false);
     const [settings, setSettings] = useState<AppSettings>(() => {
         const stored = localStorage.getItem('appSettings');
         if (stored) {
-            return { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
+            const parsed = JSON.parse(stored);
+            // MERGE with defaults to ensure new keys (showHeader) exist
+            return {
+                home: { ...DEFAULT_SETTINGS.home, ...parsed.home },
+                beszel: { ...DEFAULT_SETTINGS.beszel, ...parsed.beszel }
+            };
         }
-
-        // Migration: Check for legacy keys
-        const legacyToolbar = localStorage.getItem('showToolbar');
-        const legacyLeftPanel = localStorage.getItem('showLeftPanel');
-        const legacyDebug = localStorage.getItem('showDebug');
-        const legacyScale = localStorage.getItem('iframeScale');
-
-        if (legacyToolbar || legacyLeftPanel || legacyDebug || legacyScale) {
-            const migrated: AppSettings = { ...DEFAULT_SETTINGS };
-            migrated.home.showToolbar = legacyToolbar === 'true';
-            // Default to true if not present, but check specifically for 'false' string for legacy
-            migrated.home.showLeftPanel = legacyLeftPanel !== 'false';
-            migrated.home.showDebug = legacyDebug === 'true';
-            migrated.home.iframeScale = legacyScale ? parseFloat(legacyScale) : 1.0;
-
-            // Clear legacy keys
-            localStorage.removeItem('showToolbar');
-            localStorage.removeItem('showLeftPanel');
-            localStorage.removeItem('showDebug');
-            localStorage.removeItem('iframeScale');
-
-            return migrated;
-        }
-
         return DEFAULT_SETTINGS;
     });
 
@@ -287,6 +274,7 @@ function App() {
                     <BeszelFrame
                         iframeScale={currentSettings.iframeScale || 1.0}
                         showDebug={!!currentSettings.showDebug}
+                        showHeader={currentSettings.showHeader !== false}
                         onOpenSettings={() => setShowSettings(true)}
                     />
                 )}

@@ -3,11 +3,30 @@ import { Settings } from 'lucide-react';
 
 interface BeszelFrameProps {
     iframeScale: number;
-    showDebug: boolean; // Just in case we want to show debug overlay specific to this view later
+    showDebug: boolean;
+    showHeader: boolean;
     onOpenSettings: () => void;
 }
 
-export const BeszelFrame: React.FC<BeszelFrameProps> = ({ iframeScale, onOpenSettings }) => {
+export const BeszelFrame: React.FC<BeszelFrameProps> = ({ iframeScale, showHeader, onOpenSettings }) => {
+    const iframeRef = React.useRef<HTMLIFrameElement>(null);
+
+    // Send visibility checks to the iframe
+    React.useEffect(() => {
+        const sendUpdate = () => {
+            if (iframeRef.current?.contentWindow) {
+                iframeRef.current.contentWindow.postMessage({
+                    type: 'BESZEL_UPDATE',
+                    showHeader
+                }, '*');
+            }
+        };
+
+        sendUpdate();
+        const interval = setInterval(sendUpdate, 1000); // Keep attempting until loaded/ready
+        return () => clearInterval(interval);
+    }, [showHeader]);
+
     return (
         <div style={{
             width: '100%',
@@ -31,6 +50,14 @@ export const BeszelFrame: React.FC<BeszelFrameProps> = ({ iframeScale, onOpenSet
             </button>
 
             <iframe
+                ref={iframeRef}
+                onLoad={() => {
+                    // Send immediate update on load
+                    iframeRef.current?.contentWindow?.postMessage({
+                        type: 'BESZEL_UPDATE',
+                        showHeader
+                    }, '*');
+                }}
                 // Use dedicated port 9443 (HTTPS) on the same host to avoid Mixed Content
                 src={`https://${window.location.hostname}:9443/`}
                 style={{
