@@ -25,33 +25,31 @@ export interface AudioSession {
 export function getAudioSessions(): Promise<AudioSession[]> {
     return new Promise((resolve, reject) => {
         // /sjson [Filename]
-        // We can output to a temp file and read it, or try stdout if supported.
-        // svcl /sjson doesn't support stdout easily, it writes to file.
-        const tempFile = path.resolve(__dirname, '../../temp_sessions.json');
+        // Use unique temp file to avoid Error 32 (File in Use)
+        const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
+        const tempFile = path.resolve(__dirname, `../../temp_sessions_${uniqueId}.json`);
         const cmd = `${getSvclCmd()} /sjson "${tempFile}"`;
 
         exec(cmd, (error) => {
             if (error) {
                 console.warn('[Audio] Failed to get sessions', error);
+                // Try cleanup if file was somehow created
+                try { if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile); } catch (e) { }
                 return resolve([]);
             }
 
             if (fs.existsSync(tempFile)) {
                 try {
                     const data = fs.readFileSync(tempFile, 'utf8');
+                    fs.unlinkSync(tempFile); // Cleanup immediately
+
                     // Remove BOM and parse
                     const rawJson = JSON.parse(data.replace(/^\uFEFF/, ''));
 
                     // Filter: Only "Application" type.
-                    // Deduplicate: If multiple rows have same Name/ProcessID, pick the one with "Render" or just first one.
-                    // Often "Application" entries are what we want.
-                    // Let's filter strictly for Type == "Application"
-
                     const apps = rawJson.filter((item: any) => item.Type === "Application");
 
-                    // Deduplicate by Name (Process Name)
-                    // Chrome, Discord, etc. often spawn multiple audio sessions.
-                    // We will take the first occurrence of each unique Name.
+                    // Deduplicate by Name
                     const uniqueApps = [];
                     const seenNames = new Set();
 
@@ -65,6 +63,7 @@ export function getAudioSessions(): Promise<AudioSession[]> {
                     resolve(uniqueApps);
                 } catch (err) {
                     console.error('[Audio] JSON Parse Error', err);
+                    try { if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile); } catch (e) { }
                     resolve([]);
                 }
             } else {

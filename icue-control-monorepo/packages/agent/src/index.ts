@@ -26,7 +26,9 @@ app.use(express.json());
 
 // Health Check
 app.get('/api/ping', (req, res) => {
-    res.json({ status: 'online', hostname: UserHostname() });
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const version = require('../package.json').version;
+    res.json({ status: 'online', hostname: UserHostname(), version });
 });
 
 // --- System Control Endpoints ---

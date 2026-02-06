@@ -31,6 +31,7 @@ const DEFAULT_SETTINGS: AppSettings = {
 
 function App() {
     const [status, setStatus] = useState<string>('Initializing...');
+    const [agentVersion, setAgentVersion] = useState<string | null>(null);
     const [sessions, setSessions] = useState<AudioSession[]>([]);
     const [connected, setConnected] = useState<boolean>(true);
     const [pinnedApps, setPinnedApps] = useState<string[]>([]);
@@ -109,6 +110,10 @@ function App() {
     const fetchData = async () => {
         try {
             fetch(`${AGENT_URL}/api/ping`)
+                .then(res => res.json())
+                .then(data => {
+                    setAgentVersion(data.version || 'Unknown');
+                })
                 .catch(e => console.error("Ping Fail", e));
 
             const [sessionRes, configRes] = await Promise.all([
@@ -135,6 +140,18 @@ function App() {
             setStatus('Agent Offline');
         }
     };
+
+    // ... inside render ...
+
+    <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '5px', opacity: 0.5 }}>
+            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: connected ? '#4ade80' : '#ef4444' }} />
+            <span style={{ fontSize: '0.9rem' }}>
+                {status} <span style={{ opacity: 0.7 }}>v1.4</span>
+                {agentVersion && <span style={{ opacity: 0.5, marginLeft: '6px' }}>(Agent v{agentVersion})</span>}
+            </span>
+        </div>
+    </div>
 
     useEffect(() => {
         fetchData();
@@ -220,7 +237,10 @@ function App() {
                                     <div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '5px', opacity: 0.5 }}>
                                             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: connected ? '#4ade80' : '#ef4444' }} />
-                                            <span style={{ fontSize: '0.9rem' }}>{status} v1.4</span>
+                                            <span style={{ fontSize: '0.9rem' }}>
+                                                {status} <span style={{ opacity: 0.7 }}>v1.4</span>
+                                                {agentVersion && <span style={{ opacity: 0.5, marginLeft: '6px' }}>(Agent v{agentVersion})</span>}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
